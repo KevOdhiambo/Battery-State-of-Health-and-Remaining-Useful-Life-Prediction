@@ -1,0 +1,39 @@
+# Data — raw NASA files are ~GB scale unzipped, never committed
+data/raw/
+data/processed/
+data/interim/
+
+# Model artifacts
+artifacts/
+*.pkl
+*.joblib
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+
+# Tooling caches
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Notebooks: keep outputs out of git
+notebooks/*.ipynb_checkpoints/
+.ipynb_checkpoints/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Secrets
+.env
