@@ -134,6 +134,20 @@ python -m src.eval.report              # figures + reports/results.md
 pytest tests/unit -q                   # 44 tests incl. leakage assertions
 ```
 
+## Demo (optional, disposable)
+
+```
+pip install -r demo/requirements.txt
+streamlit run demo/app.py
+```
+
+Pick a held-out battery and a standing point; the app projects the SoH
+trajectory from that point, derives RUL against the chosen EOL threshold
+(70% / 80%), and shows the PSI drift table for the features observed so far.
+The demo imports the same pipeline code used in training -- no reimplemented
+inference path -- but nothing in `src/` depends on it; the repo stands alone
+if the demo is deleted.
+
 ## Layout
 
 ```
