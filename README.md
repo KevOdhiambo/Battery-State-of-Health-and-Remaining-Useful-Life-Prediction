@@ -161,6 +161,7 @@ src/
   monitoring/drift.py      # PSI drift check on input features
 tests/unit/                # incl. prefix-invariance and split-leakage tests
 reports/                   # results.md + figures
+notebooks/eda_data_quality.ipynb  # the anomaly hunt behind the cohort decision
 ```
 
 ## Acronyms and terms
