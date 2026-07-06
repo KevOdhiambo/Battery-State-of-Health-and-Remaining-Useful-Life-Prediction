@@ -60,6 +60,7 @@ def _style_axes(ax: plt.Axes) -> None:
 
 def md_table(df: pd.DataFrame, floatfmt: str = "{:.4f}") -> str:
     """Render a frame as a GitHub markdown table without extra deps."""
+
     def fmt(v: object) -> str:
         if isinstance(v, float):
             return floatfmt.format(v)
@@ -85,8 +86,11 @@ def plot_projections(
 
     fig, ax = plt.subplots(figsize=(9.5, 5.5), dpi=130)
     ax.plot(
-        battery["cycle_index"], battery[TARGET_COLUMN],
-        color=COLOR_ACTUAL, linewidth=2, label="Actual SoH",
+        battery["cycle_index"],
+        battery[TARGET_COLUMN],
+        color=COLOR_ACTUAL,
+        linewidth=2,
+        label="Actual SoH",
     )
     labeled_model = labeled_baseline = False
     for frac in STANDING_POINT_FRACTIONS:
@@ -100,29 +104,51 @@ def plot_projections(
         x = sp - 1 + horizons
         keep = x <= max_cycle + 25
         ax.plot(
-            x[keep], traj[keep], color=COLOR_MODEL, linewidth=2,
+            x[keep],
+            traj[keep],
+            color=COLOR_MODEL,
+            linewidth=2,
             label="Model projection" if not labeled_model else None,
         )
         labeled_model = True
         last_soh = float(row["soh_prev"].iloc[0])
         base = last_soh + slope * horizons
         ax.plot(
-            x[keep], base[keep], color=COLOR_BASELINE, linewidth=1.4,
+            x[keep],
+            base[keep],
+            color=COLOR_BASELINE,
+            linewidth=1.4,
             linestyle=(0, (4, 3)),
             label="Slope baseline" if not labeled_baseline else None,
         )
         labeled_baseline = True
-        ax.plot(sp, float(row[TARGET_COLUMN].iloc[0]), marker="o", markersize=8,
-                color=COLOR_ACTUAL, markerfacecolor="white", markeredgewidth=2, zorder=5)
+        ax.plot(
+            sp,
+            float(row[TARGET_COLUMN].iloc[0]),
+            marker="o",
+            markersize=8,
+            color=COLOR_ACTUAL,
+            markerfacecolor="white",
+            markeredgewidth=2,
+            zorder=5,
+        )
 
     ax.axhline(EOL_PRIMARY, color="#9AA3AF", linewidth=1, linestyle=(0, (4, 4)))
-    ax.text(2, EOL_PRIMARY + 0.004, "EOL threshold (70% of rated)", fontsize=9,
-            color=COLOR_INK_MUTED, va="bottom")
+    ax.text(
+        2,
+        EOL_PRIMARY + 0.004,
+        "EOL threshold (70% of rated)",
+        fontsize=9,
+        color=COLOR_INK_MUTED,
+        va="bottom",
+    )
     ax.set_xlabel("Discharge cycle number", fontsize=10, color=COLOR_INK)
     ax.set_ylabel("SoH (capacity / 2.0 Ah rated)", fontsize=10, color=COLOR_INK)
     ax.set_title(
         f"{bid}: actual SoH vs projections from 25/50/75 percent of life",
-        fontsize=11, color=COLOR_INK, loc="left",
+        fontsize=11,
+        color=COLOR_INK,
+        loc="left",
     )
     legend = ax.legend(loc="lower left", fontsize=9, frameon=False)
     for text in legend.get_texts():
@@ -155,9 +181,9 @@ def build_report(
             )
 
     soh = pd.read_json(soh_metrics_path)
-    soh_view = soh[
-        ["split", "battery_id", "horizon", "method", "mae", "rmse"]
-    ].sort_values(["split", "horizon", "mae"], ascending=[False, True, True])
+    soh_view = soh[["split", "battery_id", "horizon", "method", "mae", "rmse"]].sort_values(
+        ["split", "horizon", "mae"], ascending=[False, True, True]
+    )
 
     payload = json.loads(Path(rul_metrics_path).read_text())
     rul_summary = pd.DataFrame(payload["summary"])

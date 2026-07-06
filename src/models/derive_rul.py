@@ -134,9 +134,7 @@ def predict_rul(
     preds: list[RulPrediction] = []
     eol: dict[float, int | None] = {t: true_eol_cycle(battery, t) for t in thresholds}
 
-    rows = battery[
-        (battery["cycle_index"] >= MIN_HISTORY_CYCLES) & battery["soh_prev"].notna()
-    ]
+    rows = battery[(battery["cycle_index"] >= MIN_HISTORY_CYCLES) & battery["soh_prev"].notna()]
     if rows.empty:
         return preds
     trajectory = np.column_stack(
@@ -198,13 +196,14 @@ def summarize(preds: list[RulPrediction]) -> pd.DataFrame:
 def run(
     features_path: Path = DEFAULT_FEATURES_PATH,
     out_path: Path | None = DEFAULT_OUT_PATH,
-    config: TrainConfig = TrainConfig(version="0.2.0", horizons=HORIZON_GRID),
+    config: TrainConfig | None = None,
 ) -> tuple[pd.DataFrame, pd.DataFrame]:
     """Fit grid models on train, derive RUL on val and test batteries.
 
     Returns:
         (per-point predictions, per-battery summary).
     """
+    config = config or TrainConfig(version="0.2.0", horizons=HORIZON_GRID)
     df = add_horizon_targets(pd.read_parquet(features_path), HORIZON_GRID)
     frames = split_frames(df)
     train, val, test = frames["train"], frames["val"], frames["test"]
@@ -222,7 +221,9 @@ def run(
                     logger.warning(
                         "%s (%s) never crosses SoH %.2f in its observed life -- "
                         "right-censored, no RUL evaluation at this threshold",
-                        bid, name, threshold,
+                        bid,
+                        name,
+                        threshold,
                     )
 
     pred_df = pd.DataFrame([p.__dict__ for p in preds])

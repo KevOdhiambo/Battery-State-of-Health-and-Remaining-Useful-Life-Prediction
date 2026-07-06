@@ -43,6 +43,12 @@ MIN_STANDING_CYCLE = 10
 
 @st.cache_resource(show_spinner="Fitting horizon models on training batteries...")
 def load_pipeline() -> tuple[dict[str, pd.DataFrame], dict[int, object], float]:
+    """Load features, split by battery, and fit the horizon-grid models.
+
+    Cached for the server's lifetime: the fit is deterministic (fixed seed,
+    fixed split), so recomputing per session would add latency for no
+    freshness benefit.
+    """
     df = add_horizon_targets(pd.read_parquet(FEATURES_PATH), HORIZON_GRID)
     frames = split_frames(df)
     slope = global_fade_slope(frames["train"])
@@ -59,23 +65,59 @@ def projection_figure(
     standing_cycle: int,
     threshold: float,
 ) -> plt.Figure:
+    """Render the observed curve, the hidden future, and both projections.
+
+    The actual future is drawn faintly on purpose: the viewer can judge the
+    projection against reality while the visual weight stays on what the
+    model was actually given.
+    """
     fig, ax = plt.subplots(figsize=(9.5, 5.0), dpi=120)
     observed = battery[battery["cycle_index"] <= standing_cycle]
     future = battery[battery["cycle_index"] >= standing_cycle]
-    ax.plot(observed["cycle_index"], observed[TARGET_COLUMN], color=COLOR_ACTUAL,
-            linewidth=2, label="Observed SoH")
-    ax.plot(future["cycle_index"], future[TARGET_COLUMN], color=COLOR_ACTUAL,
-            linewidth=1.2, alpha=0.35, label="Actual future (hidden from model)")
+    ax.plot(
+        observed["cycle_index"],
+        observed[TARGET_COLUMN],
+        color=COLOR_ACTUAL,
+        linewidth=2,
+        label="Observed SoH",
+    )
+    ax.plot(
+        future["cycle_index"],
+        future[TARGET_COLUMN],
+        color=COLOR_ACTUAL,
+        linewidth=1.2,
+        alpha=0.35,
+        label="Actual future (hidden from model)",
+    )
     x = standing_cycle - 1 + horizons
     ax.plot(x, traj, color=COLOR_MODEL, linewidth=2, label="Model projection")
-    ax.plot(x, baseline, color=COLOR_BASELINE, linewidth=1.4, linestyle=(0, (4, 3)),
-            label="Slope baseline")
+    ax.plot(
+        x,
+        baseline,
+        color=COLOR_BASELINE,
+        linewidth=1.4,
+        linestyle=(0, (4, 3)),
+        label="Slope baseline",
+    )
     ax.axhline(threshold, color="#9AA3AF", linewidth=1, linestyle=(0, (4, 4)))
-    ax.text(battery["cycle_index"].min() + 1, threshold + 0.004,
-            f"EOL threshold ({threshold:.0%} of rated)", fontsize=9,
-            color=COLOR_INK_MUTED, va="bottom")
-    ax.plot(standing_cycle, float(row[TARGET_COLUMN].iloc[0]), marker="o", markersize=9,
-            color=COLOR_ACTUAL, markerfacecolor="white", markeredgewidth=2, zorder=5)
+    ax.text(
+        battery["cycle_index"].min() + 1,
+        threshold + 0.004,
+        f"EOL threshold ({threshold:.0%} of rated)",
+        fontsize=9,
+        color=COLOR_INK_MUTED,
+        va="bottom",
+    )
+    ax.plot(
+        standing_cycle,
+        float(row[TARGET_COLUMN].iloc[0]),
+        marker="o",
+        markersize=9,
+        color=COLOR_ACTUAL,
+        markerfacecolor="white",
+        markeredgewidth=2,
+        zorder=5,
+    )
     ax.set_xlabel("Discharge cycle number", fontsize=10, color=COLOR_INK)
     ax.set_ylabel("SoH (capacity / 2.0 Ah rated)", fontsize=10, color=COLOR_INK)
     legend = ax.legend(loc="lower left", fontsize=9, frameon=False)
@@ -87,6 +129,7 @@ def projection_figure(
 
 
 def main() -> None:
+    """Page layout: sidebar controls, projection chart, RUL metrics, drift table."""
     st.set_page_config(page_title="Battery SoH / RUL", layout="wide")
     st.title("Battery SoH and RUL -- held-out battery explorer")
     st.caption(
@@ -108,7 +151,9 @@ def main() -> None:
         max_cycle = int(battery["cycle_index"].max())
         standing_cycle = st.slider(
             "Standing point (last cycle the model can see)",
-            MIN_STANDING_CYCLE, max_cycle - 1, value=int(max_cycle * 0.4),
+            MIN_STANDING_CYCLE,
+            max_cycle - 1,
+            value=int(max_cycle * 0.4),
         )
         threshold = st.radio(
             "EOL threshold", (0.70, 0.80), format_func=lambda t: f"{t:.0%} of rated capacity"
@@ -127,7 +172,9 @@ def main() -> None:
     rul_model = crossing_from_trajectory(horizons, traj, float(threshold))
     rul_base = slope_rul(float(row["soh_prev"].iloc[0]), slope, float(threshold))
     eol = true_eol_cycle(battery, float(threshold))
-    rul_true = float(eol - (standing_cycle - 1)) if eol is not None and eol > standing_cycle - 1 else None
+    rul_true = (
+        float(eol - (standing_cycle - 1)) if eol is not None and eol > standing_cycle - 1 else None
+    )
 
     st.pyplot(
         projection_figure(battery, row, horizons, traj, baseline, standing_cycle, float(threshold))

@@ -146,33 +146,28 @@ def build_features(cycles: pd.DataFrame) -> pd.DataFrame:
     grouped = df.groupby("battery_id", sort=False)
     soh_shifted = grouped[TARGET_COLUMN].shift(1)
     df["soh_prev"] = soh_shifted
-    df["soh_roll_mean"] = (
-        grouped[TARGET_COLUMN]
-        .transform(lambda s: s.shift(1).rolling(ROLLING_WINDOW, min_periods=2).mean())
+    df["soh_roll_mean"] = grouped[TARGET_COLUMN].transform(
+        lambda s: s.shift(1).rolling(ROLLING_WINDOW, min_periods=2).mean()
     )
-    df["soh_roll_std"] = (
-        grouped[TARGET_COLUMN]
-        .transform(lambda s: s.shift(1).rolling(ROLLING_WINDOW, min_periods=2).std())
+    df["soh_roll_std"] = grouped[TARGET_COLUMN].transform(
+        lambda s: s.shift(1).rolling(ROLLING_WINDOW, min_periods=2).std()
     )
-    df["fade_rate"] = (
-        grouped[TARGET_COLUMN]
-        .transform(
-            lambda s: s.shift(1).rolling(SLOPE_WINDOW).apply(_slope, raw=True)
-        )
+    df["fade_rate"] = grouped[TARGET_COLUMN].transform(
+        lambda s: s.shift(1).rolling(SLOPE_WINDOW).apply(_slope, raw=True)
     )
     df["discharge_duration_prev"] = grouped["discharge_duration_s"].shift(1)
     df["voltage_min_prev"] = grouped["voltage_min"].shift(1)
     df["temp_max_prev"] = grouped["temp_max"].shift(1)
-    df["time_since_prev_cycle_h"] = (
-        grouped["cycle_start_time"].diff().dt.total_seconds() / 3600.0
-    )
+    df["time_since_prev_cycle_h"] = grouped["cycle_start_time"].diff().dt.total_seconds() / 3600.0
 
     missing = [c for c in FEATURE_COLUMNS if c not in df.columns]
     if missing:
         raise KeyError(f"feature build produced no column(s): {missing}")
     logger.info(
         "built %d features for %d rows across %d batteries",
-        len(FEATURE_COLUMNS), len(df), df["battery_id"].nunique(),
+        len(FEATURE_COLUMNS),
+        len(df),
+        df["battery_id"].nunique(),
     )
     return df
 

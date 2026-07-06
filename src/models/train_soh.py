@@ -104,9 +104,7 @@ def evaluable(df: pd.DataFrame, k: int) -> pd.DataFrame:
     return df[df["soh_prev"].notna() & df[horizon_target(k)].notna()]
 
 
-def per_battery_metrics(
-    df: pd.DataFrame, y_pred: np.ndarray, method: str, k: int
-) -> pd.DataFrame:
+def per_battery_metrics(df: pd.DataFrame, y_pred: np.ndarray, method: str, k: int) -> pd.DataFrame:
     """MAE / RMSE / R2 per battery for one prediction vector at horizon k."""
     out = df[["battery_id", horizon_target(k)]].copy()
     out["pred"] = y_pred
@@ -146,9 +144,7 @@ def baseline_global_slope(df: pd.DataFrame, slope: float, k: int) -> np.ndarray:
     return df["soh_prev"].to_numpy() + slope * k
 
 
-def train_ridge(
-    train: pd.DataFrame, features: list[str], target: str, seed: int
-) -> Pipeline:
+def train_ridge(train: pd.DataFrame, features: list[str], target: str, seed: int) -> Pipeline:
     """Median-impute (train statistics only), scale, ridge-regress."""
     fit_rows = train[train[target].notna()]
     model = Pipeline(
@@ -206,9 +202,10 @@ def save_artifacts(
 def run(
     features_path: Path = DEFAULT_FEATURES_PATH,
     artifact_root: Path | None = DEFAULT_ARTIFACT_ROOT,
-    config: TrainConfig = TrainConfig(),
+    config: TrainConfig | None = None,
 ) -> pd.DataFrame:
     """Train baselines and per-horizon models, return per-battery metrics."""
+    config = config or TrainConfig()
     df = add_horizon_targets(pd.read_parquet(features_path), config.horizons)
     frames = split_frames(df)
     train, val, test = frames["train"], frames["val"], frames["test"]

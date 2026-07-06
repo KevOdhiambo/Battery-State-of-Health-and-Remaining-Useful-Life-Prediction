@@ -151,7 +151,9 @@ def parse_battery_file(path: Path) -> pd.DataFrame:
         capacity = _scalar_capacity(data)
         if capacity is None:
             n_skipped += 1
-            logger.warning("%s: discharge at file index %d has no capacity, skipping", battery_id, i)
+            logger.warning(
+                "%s: discharge at file index %d has no capacity, skipping", battery_id, i
+            )
             continue
         # Some runs log Capacity = 0.0: partial discharges that never reached
         # the voltage cutoff (their voltage_min sits at 2.9-3.8 V instead of
@@ -161,7 +163,10 @@ def parse_battery_file(path: Path) -> pd.DataFrame:
             n_skipped += 1
             logger.warning(
                 "%s: discharge at file index %d has non-positive capacity %.3f "
-                "(aborted/partial run), skipping", battery_id, i, capacity,
+                "(aborted/partial run), skipping",
+                battery_id,
+                i,
+                capacity,
             )
             continue
 
@@ -175,8 +180,13 @@ def parse_battery_file(path: Path) -> pd.DataFrame:
         row.update(summarize_discharge(data))
         # A discharge with no preceding charge in the file (can happen at the
         # start of a batch) gets NaN charge columns rather than being dropped.
-        row.update(last_charge or {k: np.nan for k in
-                   ("charge_duration_s", "charge_current_end", "charge_temp_max", "charge_temp_mean")})
+        charge_columns = (
+            "charge_duration_s",
+            "charge_current_end",
+            "charge_temp_max",
+            "charge_temp_mean",
+        )
+        row.update(last_charge or dict.fromkeys(charge_columns, np.nan))
         rows.append(row)
         last_charge = None
 

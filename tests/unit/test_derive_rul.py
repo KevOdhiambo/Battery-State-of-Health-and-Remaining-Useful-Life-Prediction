@@ -35,9 +35,7 @@ class TestTrajectoryCrossing:
         assert crossing_from_trajectory(horizons, soh, 0.70) == pytest.approx(11.0)
 
     def test_non_degrading_trajectory_is_censored(self):
-        assert crossing_from_trajectory(
-            np.array([1.0, 6.0]), np.array([0.80, 0.80]), 0.70
-        ) is None
+        assert crossing_from_trajectory(np.array([1.0, 6.0]), np.array([0.80, 0.80]), 0.70) is None
 
 
 class TestSlopeRul:

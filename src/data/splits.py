@@ -48,21 +48,32 @@ VAL_BATTERIES: tuple[str, ...] = ("B0007",)
 TEST_BATTERIES: tuple[str, ...] = ("B0018",)
 
 EXCLUDED_BATTERIES: dict[str, str] = {
-    "B0033": "4 A discharge to 2.0 V; capacity not comparable to the 2 A cohort, anomalous near-zero first cycles",
+    "B0033": (
+        "4 A discharge to 2.0 V; capacity not comparable to the 2 A cohort, "
+        "anomalous near-zero first cycles"
+    ),
     "B0034": "4 A discharge to 2.2 V; capacity not comparable to the 2 A cohort",
     "B0036": "capacity readings exceed rated by 22 percent; measurement suspect",
-    "B0038": "load current and ambient temperature change across cycles; capacity trace is not an SoH signal",
+    "B0038": (
+        "load current and ambient temperature change across cycles; "
+        "capacity trace is not an SoH signal"
+    ),
     "B0039": "load current and ambient temperature change across cycles",
     "B0040": "load current and ambient temperature change across cycles",
     "B0041": "4 C ambient with mixed 4 A / 1 A loads; NASA-flagged unexplained low-capacity runs",
     "B0042": "4 C ambient, mixed loads; NASA-flagged unexplained low-capacity runs",
     "B0043": "4 C ambient, mixed loads; NASA-flagged unexplained low-capacity runs",
     "B0044": "4 C ambient, mixed loads; NASA-flagged unexplained low-capacity runs",
-    "B0045": "4 C ambient; capacity sits below the rated-capacity EOL threshold from the first cycle",
+    "B0045": (
+        "4 C ambient; capacity sits below the rated-capacity EOL threshold from the first cycle"
+    ),
     "B0046": "4 C ambient; below-threshold from first cycle",
     "B0047": "4 C ambient; below-threshold from first cycle",
     "B0048": "4 C ambient; below-threshold from first cycle",
-    "B0049": "experiment ended by control-software crash; SoH values up to 1.19 are physically impossible",
+    "B0049": (
+        "experiment ended by control-software crash; SoH values up to 1.19 "
+        "are physically impossible"
+    ),
     "B0050": "software-crash batch; SoH values up to 1.32, 4 of 25 discharges lack capacity",
     "B0051": "software-crash batch; SoH values up to 1.17",
     "B0052": "software-crash batch; only 4 usable discharge cycles",
@@ -73,9 +84,9 @@ EXCLUDED_BATTERIES: dict[str, str] = {
 }
 
 SPLIT_OF: dict[str, str] = (
-    {b: "train" for b in TRAIN_BATTERIES}
-    | {b: "val" for b in VAL_BATTERIES}
-    | {b: "test" for b in TEST_BATTERIES}
+    dict.fromkeys(TRAIN_BATTERIES, "train")
+    | dict.fromkeys(VAL_BATTERIES, "val")
+    | dict.fromkeys(TEST_BATTERIES, "test")
 )
 
 
