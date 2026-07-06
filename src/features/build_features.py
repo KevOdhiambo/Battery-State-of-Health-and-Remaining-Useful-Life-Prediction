@@ -189,3 +189,22 @@ def feature_justification_table() -> pd.DataFrame:
             for name, (text, flagged) in FEATURE_SPECS.items()
         ]
     )
+
+
+def main() -> None:
+    import argparse
+    from pathlib import Path
+
+    parser = argparse.ArgumentParser(description="Build leakage-safe features")
+    parser.add_argument("--cycles", type=Path, default=Path("data/processed/cycles.parquet"))
+    parser.add_argument("--out", type=Path, default=Path("data/processed/features.parquet"))
+    args = parser.parse_args()
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(name)s: %(message)s")
+    df = build_features(pd.read_parquet(args.cycles))
+    args.out.parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(args.out, index=False)
+    logger.info("wrote %s", args.out)
+
+
+if __name__ == "__main__":
+    main()
