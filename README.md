@@ -162,3 +162,25 @@ src/
 tests/unit/                # incl. prefix-invariance and split-leakage tests
 reports/                   # results.md + figures
 ```
+
+## Acronyms and terms
+
+| Acronym | Meaning |
+|---|---|
+| SoH | State of Health -- measured discharge capacity divided by the 2.0 Ah rated capacity; 1.0 = new, degrades toward the EOL threshold |
+| RUL | Remaining Useful Life -- number of discharge cycles until SoH first crosses the EOL threshold |
+| EOL | End of Life -- the SoH threshold at which a battery is considered worn out (70% of rated capacity primary, 80% as sensitivity) |
+| Ah | Ampere-hour -- unit of electric charge; battery capacity is measured in Ah |
+| MAE | Mean Absolute Error -- average of the absolute prediction errors |
+| AE | Absolute Error (median AE / max AE = median and worst single error) |
+| RMSE | Root Mean Squared Error -- like MAE but penalizes large errors more |
+| R^2 | Coefficient of determination -- fraction of target variance explained; used here only as a leakage tripwire, never as the headline |
+| PSI | Population Stability Index -- drift metric comparing a feature's current distribution against its training distribution (< 0.1 stable, 0.1-0.25 moderate, > 0.25 significant) |
+| ML | Machine Learning |
+| NASA | National Aeronautics and Space Administration |
+| PCoE | Prognostics Center of Excellence -- the NASA lab that published the battery aging dataset |
+| PHM | Prognostics and Health Management -- the research field; also the name of NASA's dataset repository |
+| EV | Electric Vehicle |
+| CC / CV | Constant Current / Constant Voltage -- the two phases of the charging protocol used in the experiments |
+| LightGBM | Light Gradient Boosting Machine -- the gradient-boosted tree library used for the models |
+| val / test | Validation split (model selection) / test split (final reporting); each is one whole held-out battery |
