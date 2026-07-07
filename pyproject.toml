@@ -38,3 +38,6 @@ select = ["E", "F", "I", "N", "UP", "B", "C4", "SIM"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+# Tests import the pipeline as `from src...`; putting the repo root on the
+# path makes bare `pytest` behave the same as `python -m pytest`.
+pythonpath = ["."]
