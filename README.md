@@ -128,8 +128,8 @@ control below is enforced in code, not by convention.
 Prerequisites: Python 3.11+, ~1 GB disk for the raw dataset.
 
 ```
-git clone <repository-url>
-cd SOL_RUL
+git clone https://github.com/KevOdhiambo/Battery-State-of-Health-and-Remaining-Useful-Life-Prediction.git
+cd Battery-State-of-Health-and-Remaining-Useful-Life-Prediction
 python -m venv .venv
 .venv\Scripts\activate            # Windows; use source .venv/bin/activate on Unix
 pip install -r requirements.txt
@@ -238,8 +238,14 @@ data/                           # raw + processed data (gitignored)
   measurement; the autoregressive features would require rework in that
   setting. The telemetry-only model variant reported in results.md is the
   honest floor for it.
-- **Model selection happens on the friendliest battery.** Early stopping uses
-  B0007, the shallowest fade curve of the four canonical cells.
+- **Model selection happens on the friendliest battery, and results are
+  sensitive to the val/test assignment.** Early stopping uses B0007, the
+  shallowest fade curve of the four canonical cells, and final reporting rests
+  on a single test battery (B0018). With a four-battery cohort, swapping which
+  cell validates and which tests could move the reported numbers materially.
+  A fuller evaluation would rotate assignments via leave-one-battery-out
+  cross-validation; the current results should be read as a single-fold case
+  study, not a cross-validated benchmark.
 - **EOL threshold sensitivity.** Moving the threshold from 70% to 80% changes
   both the RUL answer and whether the question is answerable (B0007 is
   right-censored at 70%).
